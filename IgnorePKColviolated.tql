@@ -1,0 +1,43 @@
+CREATE APPLICATION IgnorePKCol;
+CREATE OR REPLACE SOURCE Source_Orcl USING Global.OracleReader ( 
+  TransactionBufferDiskLocation: '.striim/LargeBuffer', 
+  adapterName: 'OracleReader', 
+  OutboundServerProcessName: 'WebActionXStream', 
+  Tables: 'Orclstriim.withoutprimary;Orclstriim.Bed;Orclstriim.CF_FINAl', 
+  Password: 'IzceMn3JBIGNKayDqHDXTw==', 
+  DDLCaptureMode: 'All', 
+  ConnectionURL: 'jdbc:oracle:thin:@localhost:1522/orclstriim', 
+  Compression: false, 
+  ReaderType: 'LogMiner', 
+  FetchSize: 1, 
+  connectionRetryPolicy: 'timeOut=30, retryInterval=30, maxRetries=3', 
+  Password_encrypted: 'true', 
+  SupportPDB: false, 
+  QuiesceMarkerTable: 'QUIESCEMARKER', 
+  Username: 'Orclstriim', 
+  CommittedTransactions: true, 
+  QueueSize: 2048, 
+  XstreamTimeOut: 600, 
+  DictionaryMode: 'OnlineCatalog', 
+  TransactionBufferSpilloverSize: '1MB', 
+  TransactionBufferType: 'Memory', 
+  FilterTransactionBoundaries: true, 
+  SendBeforeImage: true ) 
+OUTPUT TO Orcl_src_output;
+CREATE OR REPLACE TARGET Orcl_Target USING Global.DatabaseWriter ( 
+  ConnectionRetryPolicy: 'retryInterval=30, maxRetries=3', 
+  Password: 'IzceMn3JBIGNKayDqHDXTw==', 
+  ConnectionURL: 'jdbc:oracle:thin:@localhost:1522/orclstriim', 
+  CommitPolicy: 'EventCount:10,Interval:6', 
+  DatabaseProviderType: 'Oracle', 
+  CheckPointTable: 'CHKPOINT', 
+  Password_encrypted: 'true', 
+  Username: 'Orclstriim', 
+  IgnorableExceptionCode: '1', 
+  StatementCacheSize: '50', 
+  PreserveSourceTransactionBoundary: 'false', 
+  Tables: 'Orclstriim.withoutprimary,Orclstriim.withprimary', 
+  BatchPolicy: 'EventCount:1,Interval:6', 
+  adapterName: 'DatabaseWriter' ) 
+INPUT FROM Orcl_src_output;
+END APPLICATION IgnorePKCol;
