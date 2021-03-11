@@ -41,4 +41,3 @@ CREATE OR REPLACE TARGET Orcl_Target USING Global.DatabaseWriter (
   adapterName: 'DatabaseWriter' ) 
 INPUT FROM Orcl_src_output;
 END APPLICATION IgnorePKCol;
-
